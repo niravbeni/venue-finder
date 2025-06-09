@@ -130,16 +130,17 @@ def main():
     st.title("📍 Venue Finder")
     st.markdown("*Find perfect meeting spots using AI and Google Maps data*")
     
-    # Check for environment file
-    if not os.path.exists('.env'):
-        st.warning("⚠️ Please create a `.env` file with your API keys. See `env_template.txt` for reference.")
-    else:
-        # Check if API keys are properly configured
-        load_dotenv()
+    # Load environment variables (works both locally with .env and on Streamlit Cloud with secrets)
+    load_dotenv()
+    
+    # Check if API keys are properly configured
+    openai_key = os.getenv("OPENAI_API_KEY")
+    if not openai_key or len(openai_key) < 20 or '\n' in openai_key:
+        st.error("🔧 **API Key Configuration Issue**")
         
-        openai_key = os.getenv("OPENAI_API_KEY")
-        if not openai_key or len(openai_key) < 20 or '\n' in openai_key:
-            st.error("🔧 **API Key Configuration Issue**")
+        # Show different instructions based on deployment environment
+        if os.path.exists('.env'):
+            # Local development - .env file exists but key is wrong
             st.markdown("""
             Your OPENAI_API_KEY appears to be missing or incorrectly formatted. Please:
             
@@ -154,7 +155,24 @@ def main():
             GOOGLE_MAPS_API_KEY=your-google-maps-key-here
             ```
             """)
-            st.stop()
+        else:
+            # Streamlit Cloud or other deployment - no .env file
+            st.markdown("""
+            Your OPENAI_API_KEY appears to be missing or incorrectly formatted.
+            
+            **For Streamlit Cloud:**
+            1. Go to your app settings
+            2. Navigate to "Secrets"
+            3. Add your API key in this format:
+            ```
+            OPENAI_API_KEY = "sk-your-very-long-api-key-here"
+            GOOGLE_MAPS_API_KEY = "your-google-maps-key-here"
+            ```
+            
+            **For local development:**
+            Create a `.env` file with your API keys.
+            """)
+        st.stop()
     
     # User management controls (outside form to avoid form resets)
     st.header("👥 Group Size")
