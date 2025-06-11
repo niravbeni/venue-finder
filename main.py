@@ -210,11 +210,42 @@ def main():
     
     st.divider()
     
-    # Create two main columns: form and map
-    col_form, col_map = st.columns([3, 2])
+    # Create two main columns: form and map with proper spacing
+    col_form, col_spacer, col_map = st.columns([3, 0.3, 2])
     
     with col_form:
         st.header("📝 Meeting Details")
+        
+        # Remove form outlines with custom CSS
+        st.markdown("""
+        <style>
+        .stForm {
+            border: none !important;
+            padding: 0 !important;
+        }
+        .stForm > div {
+            border: none !important;
+            padding: 0 !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+        
+        # Meeting area preference (moved outside form for proper interaction)
+        st.subheader("🎯 Meeting Area Preference")
+        col_check, col_area = st.columns([1, 2])
+        
+        with col_check:
+            specify_area = st.checkbox("Specify preferred area", help="Uncheck to find venues at the geographic center")
+        
+        with col_area:
+            meeting_area = st.text_input(
+                "Preferred meeting area",
+                disabled=not specify_area,
+                placeholder="e.g., Central London, Shoreditch, Camden",
+                help="Enter a neighborhood, district, or general area"
+            )
+        
+        st.divider()
         
         # Input form
         with st.form("venue_form"):
@@ -252,23 +283,6 @@ def main():
                         help="Choose preferred transport or 'Any' if flexible"
                     )
                     transport_preferences.append(transport)
-            
-            st.divider()
-            
-            # Meeting area preference with better layout
-            st.subheader("🎯 Meeting Area Preference")
-            col_check, col_area = st.columns([1, 2])
-            
-            with col_check:
-                specify_area = st.checkbox("Specify preferred area", help="Uncheck to find venues at the geographic center")
-            
-            with col_area:
-                meeting_area = st.text_input(
-                    "Preferred meeting area",
-                    disabled=not specify_area,
-                    placeholder="e.g., Central London, Shoreditch, Camden",
-                    help="Enter a neighborhood, district, or general area"
-                )
             
             st.divider()
             
